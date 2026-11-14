@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PhishGuard — Customer Message & Link Verification Portal</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    .status-error-bg { background-color: color-mix(in srgb, var(--error) 14%, transparent); }
+    .status-error-border { border-color: color-mix(in srgb, var(--error) 40%, transparent); }
+    .status-warning-bg { background-color: color-mix(in srgb, var(--warning) 14%, transparent); }
+    .status-warning-border { border-color: color-mix(in srgb, var(--warning) 40%, transparent); }
+    .status-success-bg { background-color: color-mix(in srgb, var(--success) 14%, transparent); }
+    .status-success-border { border-color: color-mix(in srgb, var(--success) 40%, transparent); }
+    .status-primary-bg { background-color: color-mix(in srgb, var(--primary) 14%, transparent); }
+    .status-primary-border { border-color: color-mix(in srgb, var(--primary) 40%, transparent); }
+    .modal-backdrop { background-color: rgba(0, 0, 0, 0.62); backdrop-filter: blur(3px); }
+    .flow-connector { stroke: var(--border); stroke-width: 2; stroke-dasharray: 5 4; }
+  </style>
+</head>
+<body class="bg-[var(--background)] text-[var(--foreground)] antialiased p-4 md:p-6">
+
+  <div class="max-w-6xl mx-auto space-y-5">
+
+    <!-- Top Header & Navigation Tabs -->
+    <header class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 md:p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div class="flex items-start gap-3.5">
+        <div class="w-10 h-10 rounded-lg status-primary-bg border status-primary-border flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 text-[var(--primary)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex flex-wrap items-center gap-2">
+            <h1 class="text-base md:text-lg font-semibold tracking-tight">PhishGuard Customer Security Gate</h1>
+            <span class="text-xs px-2 py-0.5 rounded-full status-primary-bg text-[var(--primary)] font-medium">IT Security Advisory Tool</span>
+          </div>
+          <p class="text-xs text-[var(--muted-foreground)] mt-0.5">
+            Inspect convincing Email &amp; WhatsApp messages, expose hidden scam indicators, enforce post-check proceed locks, and audit every customer decision.
+          </p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex flex-wrap items-center gap-1.5 bg-[var(--sidebar)] p-1 rounded-lg border border-[var(--card-border)] shrink-0">
+        <button onclick="switchTab('checker')" id="tab-btn-checker" class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors bg-[var(--primary)] text-[var(--primary-foreground)]">
+          1. Message Checker
+        </button>
+        <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors text-[var(--muted-foreground)] hover:text-[var(--foreground)] flex items-center gap-1.5">
+          <span>2. Action Log Dashboard</span>
+          <span id="log-count-pill" class="px-1.5 py-0.2 rounded-full bg-[var(--card)] border border-[var(--border)] text-xs font-mono">0</span>
+        </button>
+        <button onclick="switchTab('blueprint')" id="tab-btn-blueprint" class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+          3. System Flow Idea
+        </button>
+      </nav>
+    </header>
+
+    <!-- ========================================== -->
+    <!-- TAB 1: MESSAGE & LINK CHECKER              -->
+    <!-- ========================================== -->
+    <section id="tab-checker" class="space-y-5">
+
+      <!-- Compact Visual Workflow Stepper -->
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3.5">
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-2.5 text-xs">
+          <div id="step-1" class="p-2.5 rounded-lg border status-primary-border status-primary-bg flex items-center gap-2.5">
+            <span class="w-6 h-6 rounded-full bg-[var(--primary)] text-[var(--primary-foreground)] font-semibold flex items-center justify-center shrink-0">1</span>
+            <div>
+              <div class="font-semibold">Paste Email / WhatsApp</div>
+              <div class="text-[var(--muted-foreground)]">Sender, text &amp; links</div>
+            </div>
+          </div>
+          <div id="step-2" class="p-2.5 rounded-lg border border-[var(--card-border)] flex items-center gap-2.5">
+            <span class="w-6 h-6 rounded-full bg-[var(--sidebar)] border border-[var(--border)] font-semibold flex items-center justify-center shrink-0">2</span>
+            <div>
+              <div class="font-semibold">Inspect Warning Signs</div>
+              <div class="text-[var(--muted-foreground)]">&amp; Safe Check Guide</div>
+            </div>
+          </div>
+          <div id="step-3" class="p-2.5 rounded-lg border border-[var(--card-border)] flex items-center gap-2.5">
+            <span class="w-6 h-6 rounded-full bg-[var(--sidebar)] border border-[var(--border)] font-semibold flex items-center justify-center shrink-0">3</span>
+            <div>
+              <div class="font-semibold">Proceed Locked</div>
+              <div class="text-[var(--muted-foreground)]">Blocked once checked</div>
+            </div>
+          </div>
+          <div id="step-4" class="p-2.5 rounded-lg border border-[var(--card-border)] flex items-center gap-2.5">
+            <span class="w-6 h-6 rounded-full bg-[var(--sidebar)] border border-[var(--border)] font-semibold flex items-center justify-center shrink-0">4</span>
+            <div>
+              <div class="font-semibold">Disclaimer &amp; Audit Log</div>
+              <div class="text-[var(--muted-foreground)]">Own-risk pop-up + log</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+        <!-- Left Column: Input Form & Sample Presets -->
+        <div class="lg:col-span-5 bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 md:p-5 space-y-4 h-fit">
+          <div class="flex items-center justify-between border-b border-[var(--card-border)] pb-3">
+            <div>
+              <h2 class="text-sm font-semibold">Suspicious Message Input</h2>
+              <p class="text-xs text-[var(--muted-foreground)]">Test a real message or load a convincing scam example below.</p>
+            </div>
+            <button onclick="resetChecker()" class="text-xs text-[var(--link)] hover:underline">Clear Form</button>
+          </div>
+
+          <!-- Quick Demo Scenarios -->
+          <div class="space-y-1.5">
+            <label class="text-xs font-medium text-[var(--muted-foreground)] block">Try Convincing Scam Examples:</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="loadPreset('wa_bank')" class="text-left p-2 rounded-lg border border-[var(--card-border)] hover:border-[var(--primary)] bg-[var(--sidebar)] transition-colors text-xs">
+                <div class="font-semibold text-[var(--foreground)]">WhatsApp: Fake Bank Alert</div>
+                <div class="text-[var(--muted-foreground)] truncate">Short link + .APK trap</div>
+              </button>
+              <button onclick="loadPreset('email_m365')" class="text-left p-2 rounded-lg border border-[var(--card-border)] hover:border-[var(--primary)] bg-[var(--sidebar)] transition-colors text-xs">
+                <div class="font-semibold text-[var(--foreground)]">Email: Lookalike Invoice</div>
+                <div class="text-[var(--muted-foreground)] truncate">Typosquat domain + OTP</div>
+              </button>
+              <button onclick="loadPreset('wa_parcel')" class="text-left p-2 rounded-lg border border-[var(--card-border)] hover:border-[var(--primary)] bg-[var(--sidebar)] transition-colors text-xs">
+                <div class="font-semibold text-[var(--foreground)]">WhatsApp: Customs Fee</div>
+                <div class="text-[var(--muted-foreground)] truncate">$2.99 parcel card lure</div>
+              </button>
+              <button onclick="loadPreset('email_ceo')" class="text-left p-2 rounded-lg border border-[var(--card-border)] hover:border-[var(--primary)] bg-[var(--sidebar)] transition-colors text-xs">
+                <div class="font-semibold text-[var(--foreground)]">Email: Urgent HR / Payroll</div>
+                <div class="text-[var(--muted-foreground)] truncate">Direct deposit portal scam</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Channel Selector -->
+          <div class="space-y-1.5">
+            <label class="text-xs font-medium block">Message Source Channel</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" id="ch-whatsapp" onclick="setChannel('WhatsApp')" class="py-2 px-3 rounded-lg border status-primary-border status-primary-bg text-xs font-semibold flex items-center justify-center gap-2">
+                <span>💬 WhatsApp Message</span>
+              </button>
+              <button type="button" id="ch-email" onclick="setChannel('Email')" class="py-2 px-3 rounded-lg border border-[var(--card-border)] bg-[var(--sidebar)] text-xs font-medium text-[var(--muted-foreground)] flex items-center justify-center gap-2">
+                <span>✉️ Email Message</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Sender Input -->
+          <div class="space-y-1">
+            <label for="sender-input" class="text-xs font-medium block">Sender Phone Number / Email Address</label>
+            <input id="sender-input" type="text" placeholder="e.g. +60 11-3948 2201 or support@micros0ft-verify.com"
+              class="w-full px-3 py-2 rounded-lg bg-[var(--background)] border border-[var(--border)] text-xs focus:outline-none focus:border-[var(--primary)]" />
+          </div>
+
+          <!-- Message Content -->
+          <div class="space-y-1">
+            <label for="message-input" class="text-xs font-medium block">Message Body &amp; Embedded Link(s)</label>
+            <textarea id="message-input" rows="5" placeholder="Paste the suspicious WhatsApp message, SMS, or Email content including any URLs..."
+              class="w-full px-3 py-2 rounded-lg bg-[var(--background)] border border-[var(--border)] text-xs focus:outline-none focus:border-[var(--primary)]"></textarea>
+          </div>
+
+          <!-- Target Link (Optional/Auto-extracted) -->
+          <div class="space-y-1">
+            <label for="link-input" class="text-xs font-medium block">Target Link / Action URL (Auto-detected or paste here)</label>
+            <input id="link-input" type="text" placeholder="https://..."
+              class="w-full px-3 py-2 rounded-lg bg-[var(--background)] border border-[var(--border)] text-xs font-mono focus:outline-none focus:border-[var(--primary)]" />
+          </div>
+
+          <button onclick="analyzeMessage()" class="w-full py-2.5 px-4 rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] font-semibold text-xs hover:opacity-95 transition-opacity flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <span>Check Message &amp; Scan Warning Signs</span>
+          </button>
+        </div>
+
+        <!-- Right Column: Analysis Output, Safe Verification Guide, & Locked Proceed Gate -->
+        <div class="lg:col-span-7 space-y-4">
+
+          <!-- Empty State Before Check -->
+          <div id="empty-analysis-state" class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-8 text-center space-y-3">
+            <div class="w-12 h-12 rounded-full bg-[var(--sidebar)] border border-[var(--border)] mx-auto flex items-center justify-center">
+              <svg class="w-6 h-6 text-[var(--muted-foreground)]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <h3 class="text-sm font-semibold">No Message Checked Yet</h3>
+            <p class="text-xs text-[var(--muted-foreground)] max-w-md mx-auto">
+              Select one of the convincing scam examples on the left or paste a suspicious Email/WhatsApp message, then click <strong>Check Message &amp; Scan Warning Signs</strong>.
+            </p>
+          </div>
+
+          <!-- Active Analysis Result Container -->
+          <div id="active-analysis-state" class="hidden space-y-4">
+
+            <!-- Risk Score Banner -->
+            <div id="risk-banner" class="bg-[var(--card)] border rounded-xl p-4 space-y-3">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <div id="risk-score-circle" class="w-12 h-12 rounded-xl font-bold text-sm flex flex-col items-center justify-center border shrink-0">
+                    <span id="risk-score-num">88</span>
+                    <span class="text-xs font-normal opacity-80">/100</span>
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span id="risk-level-badge" class="text-xs font-semibold px-2.5 py-0.5 rounded-full">HIGH PHISHING RISK</span>
+                      <span id="checked-channel-tag" class="text-xs text-[var(--muted-foreground)] font-mono"></span>
+                    </div>
+                    <h3 id="risk-headline" class="text-sm font-semibold mt-1">Multiple Deceptive Indicators Found</h3>
+                  </div>
+                </div>
+                <div class="text-right text-xs text-[var(--muted-foreground)] font-mono" id="check-id-display">
+                  CHK-0001
+                </div>
+              </div>
+              <p id="risk-summary-text" class="text-xs text-[var(--muted-foreground)] leading-relaxed"></p>
+            </div>
+
+            <!-- Section A: Pointed-Out Warning Signs -->
+            <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-3">
+              <div class="flex items-center justify-between border-b border-[var(--card-border)] pb-2.5">
+                <h3 class="text-sm font-semibold flex items-center gap-2">
+                  <span class="text-[var(--error)]">🚩</span> Warning Signs Detected in This Message
+                </h3>
+                <span id="warning-count-badge" class="text-xs font-mono px-2 py-0.5 rounded bg-[var(--sidebar)] border border-[var(--card-border)]">0 flags</span>
+              </div>
+              <div id="warning-signs-list" class="space-y-2.5"></div>
+            </div>
+
+            <!-- Section B: How to Check Safely Before Acting -->
+            <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-3">
+              <div class="border-b border-[var(--card-border)] pb-2.5">
+                <h3 class="text-sm font-semibold flex items-center gap-2">
+                  <span class="text-[var(--success)]">🛡️</span> IT Expert Guide: How to Verify Safely Before Acting
+                </h3>
+                <p class="text-xs text-[var(--muted-foreground)] mt-0.5">
+                  Scammers rely on panic and convincing branding. Complete these out-of-band checks safely without touching the message's links or numbers:
+                </p>
+              </div>
+              <div id="safe-guide-list" class="space-y-2"></div>
+            </div>
+
+            <!-- Section C: Post-Check Gate (UNABLE TO PROCEED + OVERRIDE DISCLAIMER TRIGGER) -->
+            <div class="bg-[var(--card)] border-2 status-error-border rounded-xl p-4 space-y-3.5">
+              <div class="flex items-start justify-between gap-3">
+                <div class="space-y-1">
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-semibold px-2 py-0.5 rounded status-error-bg text-[var(--error)]">SECURITY LOCK ENGAGED</span>
+                    <span id="proceed-state-pill" class="text-xs font-mono text-[var(--muted-foreground)]">Status: BLOCKED</span>
+                  </div>
+                  <h3 class="text-sm font-semibold">Direct Action Locked — Customer Unable to Proceed</h3>
+                  <p class="text-xs text-[var(--muted-foreground)]">
+                    Because this message has been checked through PhishGuard, direct link opening and reply actions are disabled to protect your credentials and device.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Primary Disabled Button + Secondary Override Trigger -->
+              <div class="pt-1 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-t border-[var(--card-border)]">
+                <!-- Disabled Proceed Button -->
+                <button id="locked-proceed-btn" disabled
+                  class="px-4 py-2.5 rounded-lg bg-[var(--sidebar)] border border-[var(--border)] text-[var(--muted-foreground)] text-xs font-semibold cursor-not-allowed opacity-70 flex items-center justify-center gap-2">
+                  <svg class="w-4 h-4 text-[var(--error)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  <span>Unable to Proceed (Action Locked)</span>
+                </button>
+
+                <!-- Secondary Override Button -->
+                <button id="override-trigger-btn" onclick="openDisclaimerModal()"
+                  class="px-3.5 py-2 rounded-lg border status-warning-border status-warning-bg text-[var(--warning)] hover:opacity-90 transition-opacity text-xs font-semibold flex items-center justify-center gap-1.5">
+                  <span>⚠️ Still Need to Proceed? (Own Risk Disclaimer)</span>
+                </button>
+              </div>
+
+              <!-- Post-Override Outcome Banner (Hidden until customer accepts disclaimer) -->
+              <div id="override-outcome-banner" class="hidden p-3 rounded-lg status-warning-bg border status-warning-border text-xs space-y-1">
+                <div class="font-semibold text-[var(--warning)]">⚡ Customer Risk Override Recorded</div>
+                <p id="override-outcome-text" class="text-[var(--foreground)]"></p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: AUDIT & ACTION LOG DASHBOARD        -->
+    <!-- ========================================== -->
+    <section id="tab-dashboard" class="hidden space-y-5">
+
+      <!-- KPI Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3.5">
+          <div class="text-xs text-[var(--muted-foreground)]">Total Logged Actions</div>
+          <div id="kpi-total-events" class="text-xl font-bold font-mono mt-1">0</div>
+          <div class="text-xs text-[var(--muted-foreground)] mt-1">All user &amp; system events</div>
+        </div>
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3.5">
+          <div class="text-xs text-[var(--muted-foreground)]">Messages Checked</div>
+          <div id="kpi-checks" class="text-xl font-bold font-mono mt-1 text-[var(--primary)]">0</div>
+          <div id="kpi-channel-split" class="text-xs text-[var(--muted-foreground)] mt-1">0 WA / 0 Email</div>
+        </div>
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3.5">
+          <div class="text-xs text-[var(--muted-foreground)]">Proceeds Auto-Blocked</div>
+          <div id="kpi-blocked" class="text-xl font-bold font-mono mt-1 text-[var(--error)]">0</div>
+          <div class="text-xs text-[var(--muted-foreground)] mt-1">Hard-locked after scan</div>
+        </div>
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3.5">
+          <div class="text-xs text-[var(--muted-foreground)]">Disclaimers Cancelled</div>
+          <div id="kpi-stayed-safe" class="text-xl font-bold font-mono mt-1 text-[var(--success)]">0</div>
+          <div class="text-xs text-[var(--muted-foreground)] mt-1">Customer stayed safe</div>
+        </div>
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3.5 col-span-2 lg:col-span-1">
+          <div class="text-xs text-[var(--muted-foreground)]">Own-Risk Overrides</div>
+          <div id="kpi-overrides" class="text-xl font-bold font-mono mt-1 text-[var(--warning)]">0</div>
+          <div class="text-xs text-[var(--muted-foreground)] mt-1">Disclaimer accepted</div>
+        </div>
+      </div>
+
+      <!-- Visual Breakdown Bars -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-3">
+          <h3 class="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">Action Type Distribution</h3>
+          <div id="action-distribution-bars" class="space-y-2.5 text-xs"></div>
+        </div>
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-3">
+          <h3 class="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">Channel &amp; Risk Outcome Summary</h3>
+          <div id="channel-summary-box" class="space-y-2.5 text-xs"></div>
+        </div>
+      </div>
+
+      <!-- Filter & Export Toolbar + Full Audit Table -->
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-[var(--card-border)] pb-3">
+          <div>
+            <h2 class="text-sm font-semibold">Comprehensive Security Action Log</h2>
+            <p class="text-xs text-[var(--muted-foreground)]">Immutable session trail capturing message scans, proceed blocks, safe-check completions, disclaimer views, and liability overrides.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="log-filter-action" onchange="renderDashboard()" class="px-2.5 py-1.5 rounded-lg bg-[var(--background)] border border-[var(--border)] text-xs">
+              <option value="ALL">All Action Types</option>
+              <option value="MESSAGE_CHECKED">MESSAGE_CHECKED</option>
+              <option value="PROCEED_BLOCKED">PROCEED_BLOCKED</option>
+              <option value="SAFE_STEP_VERIFIED">SAFE_STEP_VERIFIED</option>
+              <option value="DISCLAIMER_OPENED">DISCLAIMER_OPENED</option>
+              <option value="DISCLAIMER_CANCELLED">DISCLAIMER_CANCELLED</option>
+              <option value="RISK_OVERRIDE_PROCEEDED">RISK_OVERRIDE_PROCEEDED</option>
+            </select>
+            <select id="log-filter-channel" onchange="renderDashboard()" class="px-2.5 py-1.5 rounded-lg bg-[var(--background)] border border-[var(--border)] text-xs">
+              <option value="ALL">All Channels</option>
+              <option value="WhatsApp">WhatsApp</option>
+              <option value="Email">Email</option>
+              <option value="System">System</option>
+            </select>
+            <input id="log-search" oninput="renderDashboard()" type="text" placeholder="Search sender, ID, detail..."
+              class="px-2.5 py-1.5 rounded-lg bg-[var(--background)] border border-[var(--border)] text-xs w-44" />
+            <button onclick="exportLogsCSV()" class="px-3 py-1.5 rounded-lg status-primary-bg border status-primary-border text-[var(--primary)] text-xs font-semibold hover:opacity-90">
+              Export CSV
+            </button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-[var(--card-border)] text-[var(--muted-foreground)]">
+                <th class="py-2.5 px-3 font-medium">Timestamp</th>
+                <th class="py-2.5 px-3 font-medium">Log ID / Check ID</th>
+                <th class="py-2.5 px-3 font-medium">Channel</th>
+                <th class="py-2.5 px-3 font-medium">Action Event</th>
+                <th class="py-2.5 px-3 font-medium">Risk</th>
+                <th class="py-2.5 px-3 font-medium">Audit Details &amp; Customer Decision</th>
+              </tr>
+            </thead>
+            <tbody id="audit-log-tbody" class="divide-y divide-[var(--card-border)]"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: VISUAL IDEA / ARCHITECTURE BLUEPRINT-->
+    <!-- ========================================== -->
+    <section id="tab-blueprint" class="hidden space-y-5">
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 space-y-5">
+        <div class="border-b border-[var(--card-border)] pb-3">
+          <h2 class="text-base font-semibold">System Architecture &amp; Customer Protection Flow Blueprint</h2>
+          <p class="text-xs text-[var(--muted-foreground)] mt-0.5">
+            Visualizing how PhishGuard intercepts convincing Email &amp; WhatsApp lures, educates the customer, blocks impulsive clicks, gates overrides behind a liability disclaimer, and records every event in the central audit log.
+          </p>
+        </div>
+
+        <!-- Drawn Architecture Flowchart in HTML/SVG -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
+
+          <!-- Stage 1 -->
+          <div class="p-4 rounded-xl bg-[var(--sidebar)] border border-[var(--border)] flex flex-col justify-between space-y-3">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-mono px-2 py-0.5 rounded status-primary-bg text-[var(--primary)] font-semibold">STAGE 1 · INGESTION</span>
+                <span class="text-sm">✉️ 💬</span>
+              </div>
+              <h3 class="text-sm font-semibold">Convincing Message Arrival</h3>
+              <p class="text-xs text-[var(--muted-foreground)]">
+                Customer receives an urgent or legitimate-looking message via <strong>Email</strong> or <strong>WhatsApp</strong> (fake invoice, bank alert, parcel fee, HR link).
+              </p>
+              <ul class="text-xs space-y-1 text-[var(--foreground)] pt-1">
+                <li>• Extracts sender phone / email domain</li>
+                <li>• Extracts URLs, shorteners &amp; file extensions</li>
+                <li>• Evaluates psychological urgency triggers</li>
+              </ul>
+            </div>
+            <div class="text-xs font-mono text-[var(--muted-foreground)] pt-2 border-t border-[var(--card-border)]">
+              Logs → <span class="text-[var(--primary)]">MESSAGE_CHECKED</span>
+            </div>
+          </div>
+
+          <!-- Stage 2 -->
+          <div class="p-4 rounded-xl bg-[var(--sidebar)] border border-[var(--border)] flex flex-col justify-between space-y-3">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-mono px-2 py-0.5 rounded status-error-bg text-[var(--error)] font-semibold">STAGE 2 · HARD LOCK</span>
+                <span class="text-sm">🚩 🔒</span>
+              </div>
+              <h3 class="text-sm font-semibold">Warning Signs + Unable to Proceed</h3>
+              <p class="text-xs text-[var(--muted-foreground)]">
+                Tool points out red flags (typosquatting, `.apk`/`.zip`, OTP requests, unverified phone) and shows <strong>How to Check Safely Before Acting</strong>.
+              </p>
+              <div class="p-2.5 rounded-lg status-error-bg border status-error-border text-xs">
+                <strong>Mandatory Rule:</strong> Once checked, the primary <em>Proceed</em> button is immediately disabled (<strong>Unable to Proceed</strong>).
+              </div>
+            </div>
+            <div class="text-xs font-mono text-[var(--muted-foreground)] pt-2 border-t border-[var(--card-border)]">
+              Logs → <span class="text-[var(--error)]">PROCEED_BLOCKED</span> &amp; <span class="text-[var(--success)]">SAFE_STEP_VERIFIED</span>
+            </div>
+          </div>
+
+          <!-- Stage 3 -->
+          <div class="p-4 rounded-xl bg-[var(--sidebar)] border border-[var(--border)] flex flex-col justify-between space-y-3">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-mono px-2 py-0.5 rounded status-warning-bg text-[var(--warning)] font-semibold">STAGE 3 · LIABILITY GATE</span>
+                <span class="text-sm">⚠️ 📋</span>
+              </div>
+              <h3 class="text-sm font-semibold">Own-Risk Disclaimer Pop-Up</h3>
+              <p class="text-xs text-[var(--muted-foreground)]">
+                If the customer still insists on proceeding, clicking <em>Still Need to Proceed</em> opens a mandatory <strong>Risk Disclaimer Modal</strong>:
+              </p>
+              <ul class="text-xs space-y-1 text-[var(--foreground)] pt-1">
+                <li>• Displays detected scam risks clearly</li>
+                <li>• Requires justification + checkbox consent</li>
+                <li>• States proceeding is <strong>100% at customer's own risk</strong></li>
+              </ul>
+            </div>
+            <div class="text-xs font-mono text-[var(--muted-foreground)] pt-2 border-t border-[var(--card-border)]">
+              Logs → <span class="text-[var(--success)]">DISCLAIMER_CANCELLED</span> or <span class="text-[var(--warning)]">RISK_OVERRIDE_PROCEEDED</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Bottom Central Log Spine -->
+        <div class="p-4 rounded-xl status-primary-bg border status-primary-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div class="space-y-0.5">
+            <div class="text-xs font-mono font-semibold text-[var(--primary)]">CENTRAL SECURITY AUDIT ENGINE (ALL ACTIONS LOGGED)</div>
+            <p class="text-xs text-[var(--foreground)]">
+              Every check, warning flag, safe-verification checkbox, automatic block, disclaimer pop-up view, safe cancellation, and customer risk acceptance is timestamped for compliance &amp; incident response.
+            </p>
+          </div>
+          <button onclick="switchTab('dashboard')" class="px-3.5 py-2 rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-semibold shrink-0">
+            Open Live Log Dashboard →
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- RISK DISCLAIMER POP-UP MODAL (OWN-RISK OVERRIDE GATE)     -->
+  <!-- ========================================================= -->
+  <div id="disclaimer-modal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+    <div class="bg-[var(--card)] border-2 status-warning-border rounded-2xl max-w-lg w-full p-5 space-y-4 shadow-2xl">
+      <div class="flex items-start justify-between gap-3 border-b border-[var(--card-border)] pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-lg status-warning-bg border status-warning-border flex items-center justify-center text-base shrink-0">
+            ⚠️
+          </div>
+          <div>
+            <span class="text-xs font-mono uppercase text-[var(--warning)] font-semibold">Mandatory Security Disclaimer</span>
+            <h3 class="text-base font-semibold">Proceeding Is Strictly at Your Own Risk</h3>
+          </div>
+        </div>
+        <button onclick="cancelDisclaimerModal()" class="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] px-2 py-1">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div class="p-3 rounded-lg status-error-bg border status-error-border space-y-1.5">
+          <div class="font-semibold text-[var(--error)]">IT Security Warning Summary:</div>
+          <p id="modal-risk-recap" class="text-[var(--foreground)] leading-relaxed"></p>
+        </div>
+
+        <p class="text-[var(--muted-foreground)] leading-relaxed">
+          By overriding the security lock on <span id="modal-target-display" class="font-mono text-[var(--foreground)] break-all"></span>, you acknowledge that IT Security has advised against interacting with this message. Potential consequences include <strong>credential theft, unauthorized bank transfers, account takeover, or malware installation</strong>.
+        </p>
+
+        <div class="space-y-1">
+          <label for="override-reason" class="font-medium block">Select Reason for Proceeding:</label>
+          <select id="override-reason" onchange="validateModalConsent()" class="w-full px-3 py-2 rounded-lg bg-[var(--background)] border border-[var(--border)] text-xs">
+            <option value="">-- Select a reason (required) --</option>
+            <option value="Verified sender out-of-band via official phone number">Verified sender out-of-band via official phone number</option>
+            <option value="Confirmed internal company test / authorized vendor">Confirmed internal company test / authorized vendor</option>
+            <option value="Customer chooses to proceed despite phishing warning">Customer chooses to proceed despite phishing warning</option>
+          </select>
+        </div>
+
+        <label class="flex items-start gap-2.5 p-3 rounded-lg bg-[var(--sidebar)] border border-[var(--border)] cursor-pointer">
+          <input id="disclaimer-checkbox" type="checkbox" onchange="validateModalConsent()" class="mt-0.5 accent-[var(--warning)]" />
+          <span class="leading-relaxed">
+            <strong>I understand and accept full responsibility:</strong> I have read the warning signs and safe verification steps. I choose to proceed strictly at my own risk and release IT Security / the organization from liability resulting from this action.
+          </span>
+        </label>
+      </div>
+
+      <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 pt-2 border-t border-[var(--card-border)]">
+        <button onclick="cancelDisclaimerModal()" class="px-4 py-2 rounded-lg status-success-bg border status-success-border text-[var(--success)] font-semibold text-xs">
+          🛡️ Cancel &amp; Stay Safe (Recommended)
+        </button>
+        <button id="confirm-override-btn" onclick="confirmRiskOverride()" disabled
+          class="px-4 py-2 rounded-lg bg-[var(--warning)] text-black font-semibold text-xs disabled:opacity-40 disabled:cursor-not-allowed">
+          Accept Risk &amp; Proceed Anyway
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State
+    let currentChannel = 'WhatsApp';
+    let checkCounter = 102;
+    let logCounter = 5004;
+    let currentCheckRecord = null;
+
+    // Seed initial realistic audit log entries so the dashboard is immediately informative
+    const auditLogs = [
+      {
+        logId: 'LOG-5001',
+        checkId: 'CHK-101',
+        timestamp: '2026-11-14 11:18:04',
+        channel: 'WhatsApp',
+        action: 'MESSAGE_CHECKED',
+        riskScore: 92,
+        riskLabel: 'CRITICAL',
+        sender: '+60 11-8821 0942',
+        details: 'Scanned WhatsApp message claiming bank account freeze; 4 red flags found (bit.ly shortener, .apk file, urgency).'
+      },
+      {
+        logId: 'LOG-5002',
+        checkId: 'CHK-101',
+        timestamp: '2026-11-14 11:18:04',
+        channel: 'WhatsApp',
+        action: 'PROCEED_BLOCKED',
+        riskScore: 92,
+        riskLabel: 'CRITICAL',
+        sender: '+60 11-8821 0942',
+        details: 'Post-check security lock engaged automatically. Customer blocked from proceeding directly.'
+      },
+      {
+        logId: 'LOG-5003',
+        checkId: 'CHK-101',
+        timestamp: '2026-11-14 11:19:12',
+        channel: 'WhatsApp',
+        action: 'DISCLAIMER_OPENED',
+        riskScore: 92,
+        riskLabel: 'CRITICAL',
+        sender: '+60 11-8821 0942',
+        details: 'Customer clicked "Still Need to Proceed"; Own-Risk Disclaimer pop-up displayed.'
+      },
+      {
+        logId: 'LOG-5004',
+        checkId: 'CHK-101',
+        timestamp: '2026-11-14 11:19:29',
+        channel: 'WhatsApp',
+        action: 'DISCLAIMER_CANCELLED',
+        riskScore: 92,
+        riskLabel: 'CRITICAL',
+        sender: '+60 11-8821 0942',
+        details: 'Customer clicked "Cancel & Stay Safe" on disclaimer modal after reviewing consequences.'
+      }
+    ];
+
+    const presets = {
+      wa_bank: {
+        channel: 'WhatsApp',
+        sender: '+60 11-3948 2201 (Display Name: Maybank2u Alert)',
+        message: 'RM0.00 [URGENT SECURITY NOTICE] Unusual login detected on your banking profile. Your account will be permanently suspended within 2 hours unless you verify your TAC/OTP and install our security update: https://bit.ly/mybk-verify-secure26/SecurityApp.apk',
+        link: 'https://bit.ly/mybk-verify-secure26/SecurityApp.apk'
+      },
+      email_m365: {
+        channel: 'Email',
+        sender: 'Microsoft Billing <no-reply@micros0ft-account-verify.com>',
+        message: 'Dear Customer, Invoice #INV-90241 ($1,489.00) will be charged automatically today. If you did not authorize this purchase, sign in immediately with your password and 6-digit authentication code to cancel: http://login.micros0ft-account-verify.com/cancel-invoice',
+        link: 'http://login.micros0ft-account-verify.com/cancel-invoice'
+      },
+      wa_parcel: {
+        channel: 'WhatsApp',
+        sender: '+65 8921 4410',
+        message: 'DHL / PosLaju Delivery Notice: Your parcel #MY992817 is held at customs due to an unpaid $2.99 address fee. Pay within 12 hours or item will be returned: https://dhl-express-redelivery.top/pay-fee',
+        link: 'https://dhl-express-redelivery.top/pay-fee'
+      },
+      email_ceo: {
+        channel: 'Email',
+        sender: 'HR Payroll Portal <payroll-update@company-hr-portal.xyz>',
+        message: 'ACTION REQUIRED: Mandatory 2026 salary direct-deposit re-confirmation. Employees who do not re-enter their bank login credentials before 5:00 PM today will miss this month payroll cycle: https://company-hr-portal.xyz/login',
+        link: 'https://company-hr-portal.xyz/login'
+      }
+    };
+
+    function formatNow() {
+      const d = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    }
+
+    function addAuditLog(action, channel, checkId, riskScore, riskLabel, sender, details) {
+      logCounter++;
+      auditLogs.unshift({
+        logId: `LOG-${logCounter}`,
+        checkId: checkId || 'SYS',
+        timestamp: formatNow(),
+        channel: channel || currentChannel,
+        action,
+        riskScore: riskScore ?? 0,
+        riskLabel: riskLabel || 'INFO',
+        sender: sender || 'N/A',
+        details
+      });
+      updateLogPill();
+      renderDashboard();
+    }
+
+    function updateLogPill() {
+      document.getElementById('log-count-pill').textContent = auditLogs.length;
+    }
+
+    function switchTab(tab) {
+      ['checker', 'dashboard', 'blueprint'].forEach((t) => {
+        document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== tab);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (t === tab) {
+          btn.className = 'px-3 py-1.5 rounded-md text-xs font-medium transition-colors bg-[var(--primary)] text-[var(--primary-foreground)] flex items-center gap-1.5';
+        } else {
+          btn.className = 'px-3 py-1.5 rounded-md text-xs font-medium transition-colors text-[var(--muted-foreground)] hover:text-[var(--foreground)] flex items-center gap-1.5';
+        }
+      });
+      if (tab === 'dashboard') renderDashboard();
+    }
+
+    function setChannel(ch) {
+      currentChannel = ch;
+      const waBtn = document.getElementById('ch-whatsapp');
+      const emBtn = document.getElementById('ch-email');
+      if (ch === 'WhatsApp') {
+        waBtn.className = 'py-2 px-3 rounded-lg border status-primary-border status-primary-bg text-xs font-semibold flex items-center justify-center gap-2';
+        emBtn.className = 'py-2 px-3 rounded-lg border border-[var(--card-border)] bg-[var(--sidebar)] text-xs font-medium text-[var(--muted-foreground)] flex items-center justify-center gap-2';
+      } else {
+        emBtn.className = 'py-2 px-3 rounded-lg border status-primary-border status-primary-bg text-xs font-semibold flex items-center justify-center gap-2';
+        waBtn.className = 'py-2 px-3 rounded-lg border border-[var(--card-border)] bg-[var(--sidebar)] text-xs font-medium text-[var(--muted-foreground)] flex items-center justify-center gap-2';
+      }
+    }
+
+    function loadPreset(key) {
+      const p = presets[key];
+      if (!p) return;
+      setChannel(p.channel);
+      document.getElementById('sender-input').value = p.sender;
+      document.getElementById('message-input').value = p.message;
+      document.getElementById('link-input').value = p.link;
+      analyzeMessage();
+    }
+
+    function resetChecker() {
+      document.getElementById('sender-input').value = '';
+      document.getElementById('message-input').value = '';
+      document.getElementById('link-input').value = '';
+      document.getElementById('empty-analysis-state').classList.remove('hidden');
+      document.getElementById('active-analysis-state').classList.add('hidden');
+      setStepper(1);
+    }
+
+    function setStepper(activeStep) {
+      for (let i = 1; i <= 4; i++) {
+        const el = document.getElementById(`step-${i}`);
+        if (i <= activeStep) {
+          el.className = 'p-2.5 rounded-lg border status-primary-border status-primary-bg flex items-center gap-2.5';
+        } else {
+          el.className = 'p-2.5 rounded-lg border border-[var(--card-border)] flex items-center gap-2.5';
+        }
+      }
+    }
+
+    function detectThreats(channel, sender, message, linkInput) {
+      const combined = `${sender} ${message} ${linkInput}`;
+      const lower = combined.toLowerCase();
+      const warnings = [];
+      let score = 15; // Baseline zero-trust inspection score
+
+      // Extract URL if linkInput empty
+      const urlMatch = combined.match(/https?:\/\/[^\s"'<>]+/i);
+      const detectedUrl = linkInput.trim() || (urlMatch ? urlMatch[0] : '');
+
+      // 1. Urgency / Coercion / Fear Tactics
+      if (/(urgent|immediately|within \d+\s*(hour|hr|minute|h)|suspended|permanently|action required|do not ignore|before 5:00|held at customs|unusual login|unauthorized)/i.test(combined)) {
+        score += 24;
+        warnings.push({
+          severity: 'HIGH',
+          title: 'Artificial Urgency & Fear Manipulation',
+          detail: 'Uses countdown deadlines, account suspension threats, or unauthorized charge panic to stop you from verifying calmly.'
+        });
+      }
+
+      // 2. Credential / OTP / Financial Harvesting
+      if (/(otp|tac|password|6-digit|sign in|login credentials|credit card|pay-fee|unpaid.*fee|auto-debit|\$\d+)/i.test(combined)) {
+        score += 25;
+        warnings.push({
+          severity: 'HIGH',
+          title: 'Sensitive Credential, OTP, or Payment Request',
+          detail: 'Legitimate banks, couriers, and IT teams never ask you to enter passwords, TAC/OTP codes, or card numbers through a chat/email link.'
+        });
+      }
+
+      // 3. Lookalike / Typosquatted Domains (0 for o, 1 for l, hyphenated brand traps)
+      if (/(micros0ft|paypa1|amaz0n|g00gle|mybk|verify-secure|account-verify|redelivery|hr-portal)/i.test(combined)) {
+        score += 28;
+        warnings.push({
+          severity: 'CRITICAL',
+          title: 'Lookalike / Impersonation Domain Detected',
+          detail: 'The sender or link uses deceptive spelling (such as "0" instead of "o" or extra words like "-verify" / "-redelivery") to mimic a trusted brand.'
+        });
+      }
+
+      // 4. Shortened URLs or Suspicious TLDs or Unencrypted HTTP
+      if (/(bit\.ly|tinyurl\.com|t\.co|cutt\.ly|is\.gd)/i.test(combined)) {
+        score += 22;
+        warnings.push({
+          severity: 'HIGH',
+          title: 'Obfuscated URL Shortener Hiding Destination',
+          detail: 'Short links (like bit.ly) conceal the true destination server and are heavily abused in WhatsApp and SMS phishing.'
+        });
+      }
+      if (/(\.xyz|\.top|\.click|\.buzz|\.loan|\.work)(\/|$|\s)/i.test(combined)) {
+        score += 22;
+        warnings.push({
+          severity: 'HIGH',
+          title: 'High-Risk Domain Extension (.top / .xyz / .click)',
+          detail: 'Major banks, couriers, and enterprise portals rarely host customer billing or login pages on disposable top-level domains.'
+        });
+      }
+      if (/http:\/\//i.test(combined)) {
+        score += 15;
+        warnings.push({
+          severity: 'MEDIUM',
+          title: 'Unencrypted HTTP Link',
+          detail: 'Uses insecure "http://" instead of encrypted "https://", exposing any submitted data in transit.'
+        });
+      }
+
+      // 5. Dangerous Executable / Sideload Attachment (.apk, .exe, .scr, .zip, .iso)
+      if (/(\.apk|\.exe|\.msi|\.scr|\.bat|\.iso)(\b|$)/i.test(combined)) {
+        score += 35;
+        warnings.push({
+          severity: 'CRITICAL',
+          title: 'Malicious App / Executable File Lure (.APK / .EXE)',
+          detail: 'Installing an .APK or executable from WhatsApp or Email grants attackers permission to read your SMS OTPs and drain bank accounts.'
+        });
+      }
+
+      // 6. Channel-specific sender mismatch
+      if (channel === 'WhatsApp' && /(\+\d{1,3}|01\d)/.test(sender) && /(bank|maybank|cimb|dhl|poslaju|police|gov|support|official)/i.test(combined)) {
+        score += 18;
+        warnings.push({
+          severity: 'HIGH',
+          title: 'Personal/Unverified Mobile Number Impersonating an Institution',
+          detail: 'WhatsApp display names and profile photos can be set to anything by scammers; check the raw phone number, not the display name.'
+        });
+      }
+
+      if (warnings.length === 0) {
+        warnings.push({
+          severity: 'LOW',
+          title: 'Zero-Trust Caution: Unverified Sender Context',
+          detail: 'No obvious phishing keywords were triggered, but sophisticated spear-phishing can look completely plain. Verify unexpected requests out-of-band.'
+        });
+      }
+
+      score = Math.min(99, score);
+      let riskLabel = 'LOW RISK';
+      if (score >= 75) riskLabel = 'CRITICAL SCAM RISK';
+      else if (score >= 45) riskLabel = 'SUSPICIOUS / CAUTION';
+
+      // Build tailored Safe Verification Steps
+      const safeSteps = channel === 'WhatsApp'
+        ? [
+            'Do NOT tap the link, download any .APK file, or reply to the WhatsApp sender.',
+            'Ignore the WhatsApp Display Name/Logo — call the organization using the official number on the back of your bank card or official website.',
+            'Type the official website address manually into your browser (or open the official mobile app from Play Store / App Store) to check for real alerts.',
+            'Never share your 6-digit OTP/TAC or install apps outside official app stores.'
+          ]
+        : [
+            'Inspect the exact sender email domain after the "@" character-by-character for subtle swaps (e.g., "0" vs "o" or extra hyphens).',
+            'Do NOT click the button or link inside the email — open a fresh browser tab and navigate to your account using your own saved bookmark.',
+            'Contact the sender or billing department via a known internal directory or official phone number to confirm whether the invoice/request is real.',
+            'Never enter corporate passwords or MFA/OTP codes on pages reached from urgent email links.'
+          ];
+
+      return { score, riskLabel, warnings, safeSteps, detectedUrl };
+    }
+
+    function analyzeMessage() {
+      const sender = document.getElementById('sender-input').value.trim() || 'Unknown Sender';
+      const message = document.getElementById('message-input').value.trim();
+      const linkVal = document.getElementById('link-input').value.trim();
+
+      if (!message && !linkVal) {
+        alert('Please paste a message or link (or click one of the Scam Examples) to run a check.');
+        return;
+      }
+
+      const result = detectThreats(currentChannel, sender, message, linkVal);
+      if (result.detectedUrl && !linkVal) {
+        document.getElementById('link-input').value = result.detectedUrl;
+      }
+
+      checkCounter++;
+      const checkId = `CHK-${checkCounter}`;
+      currentCheckRecord = {
+        checkId,
+        channel: currentChannel,
+        sender,
+        message,
+        targetUrl: result.detectedUrl || 'Message Action / Reply',
+        score: result.score,
+        riskLabel: result.riskLabel,
+        warnings: result.warnings,
+        safeSteps: result.safeSteps,
+        overridden: false
+      };
+
+      // Render UI
+      document.getElementById('empty-analysis-state').classList.add('hidden');
+      document.getElementById('active-analysis-state').classList.remove('hidden');
+      document.getElementById('override-outcome-banner').classList.add('hidden');
+      document.getElementById('override-trigger-btn').classList.remove('hidden');
+      document.getElementById('proceed-state-pill').textContent = 'Status: BLOCKED (UNABLE TO PROCEED)';
+
+      document.getElementById('check-id-display').textContent = checkId;
+      document.getElementById('checked-channel-tag').textContent = `via ${currentChannel} • ${sender}`;
+      document.getElementById('risk-score-num').textContent = result.score;
+
+      const banner = document.getElementById('risk-banner');
+      const circle = document.getElementById('risk-score-circle');
+      const badge = document.getElementById('risk-level-badge');
+      const headline = document.getElementById('risk-headline');
+      const summary = document.getElementById('risk-summary-text');
+
+      if (result.score >= 75) {
+        banner.className = 'bg-[var(--card)] border-2 status-error-border rounded-xl p-4 space-y-3';
+        circle.className = 'w-12 h-12 rounded-xl font-bold text-sm flex flex-col items-center justify-center border status-error-border status-error-bg text-[var(--error)] shrink-0';
+        badge.className = 'text-xs font-semibold px-2.5 py-0.5 rounded-full status-error-bg text-[var(--error)]';
+        headline.textContent = 'High-Confidence Phishing / Scam Lure Detected';
+        summary.textContent = 'This message looks convincing by mimicking trusted notifications, but IT analysis identified classic scam indicators. Proceeding is automatically blocked.';
+      } else if (result.score >= 45) {
+        banner.className = 'bg-[var(--card)] border-2 status-warning-border rounded-xl p-4 space-y-3';
+        circle.className = 'w-12 h-12 rounded-xl font-bold text-sm flex flex-col items-center justify-center border status-warning-border status-warning-bg text-[var(--warning)] shrink-0';
+        badge.className = 'text-xs font-semibold px-2.5 py-0.5 rounded-full status-warning-bg text-[var(--warning)]';
+        headline.textContent = 'Suspicious Message — Treat With Caution';
+        summary.textContent = 'Several risk patterns were found. Do not trust the message at face value; follow the safe verification steps below before taking any action.';
+      } else {
+        banner.className = 'bg-[var(--card)] border status-success-border rounded-xl p-4 space-y-3';
+        circle.className = 'w-12 h-12 rounded-xl font-bold text-sm flex flex-col items-center justify-center border status-success-border status-success-bg text-[var(--success)] shrink-0';
+        badge.className = 'text-xs font-semibold px-2.5 py-0.5 rounded-full status-success-bg text-[var(--success)]';
+        headline.textContent = 'Low Automated Risk — Zero-Trust Lock Active';
+        summary.textContent = 'Few overt phishing indicators were found, but direct proceeding remains locked until you verify the sender safely.';
+      }
+      badge.textContent = result.riskLabel;
+
+      // Render Warning Signs
+      document.getElementById('warning-count-badge').textContent = `${result.warnings.length} warning sign(s)`;
+      const warnContainer = document.getElementById('warning-signs-list');
+      warnContainer.innerHTML = result.warnings.map((w) => {
+        const sevClass = w.severity === 'CRITICAL' || w.severity === 'HIGH'
+          ? 'status-error-bg text-[var(--error)] status-error-border'
+          : w.severity === 'MEDIUM'
+            ? 'status-warning-bg text-[var(--warning)] status-warning-border'
+            : 'status-primary-bg text-[var(--primary)] status-primary-border';
+        return `
+          <div class="p-3 rounded-lg bg-[var(--sidebar)] border border-[var(--card-border)] space-y-1">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-semibold">${escapeHtml(w.title)}</span>
+              <span class="text-xs font-mono px-2 py-0.5 rounded border ${sevClass}">${w.severity}</span>
+            </div>
+            <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">${escapeHtml(w.detail)}</p>
+          </div>
+        `;
+      }).join('');
+
+      // Render Safe Verification Checklist
+      const guideContainer = document.getElementById('safe-guide-list');
+      guideContainer.innerHTML = result.safeSteps.map((step, idx) => `
+        <label class="flex items-start gap-2.5 p-2.5 rounded-lg bg-[var(--sidebar)] border border-[var(--card-border)] cursor-pointer text-xs">
+          <input type="checkbox" onchange="logSafeStep(${idx + 1}, this.checked)" class="mt-0.5 accent-[var(--success)]" />
+          <span class="leading-relaxed">${escapeHtml(step)}</span>
+        </label>
+      `).join('');
+
+      setStepper(3);
+
+      // Log 1: Message Checked
+      addAuditLog(
+        'MESSAGE_CHECKED',
+        currentChannel,
+        checkId,
+        result.score,
+        result.riskLabel,
+        sender,
+        `Checked ${currentChannel} message (${result.warnings.length} warning signs: ${result.warnings.map(w => w.title).join('; ')}).`
+      );
+
+      // Log 2: Automatic Post-Check Block ("Once checked, customers unable to proceed")
+      addAuditLog(
+        'PROCEED_BLOCKED',
+        currentChannel,
+        checkId,
+        result.score,
+        result.riskLabel,
+        sender,
+        `Security lock engaged automatically upon scan completion. Customer unable to proceed to "${currentCheckRecord.targetUrl}".`
+      );
+    }
+
+    function logSafeStep(stepNum, isChecked) {
+      if (!currentCheckRecord || !isChecked) return;
+      addAuditLog(
+        'SAFE_STEP_VERIFIED',
+        currentCheckRecord.channel,
+        currentCheckRecord.checkId,
+        currentCheckRecord.score,
+        currentCheckRecord.riskLabel,
+        currentCheckRecord.sender,
+        `Customer completed safe verification check #${stepNum} before acting.`
+      );
+    }
+
+    function openDisclaimerModal() {
+      if (!currentCheckRecord) return;
+      document.getElementById('override-reason').value = '';
+      document.getElementById('disclaimer-checkbox').checked = false;
+      document.getElementById('confirm-override-btn').disabled = true;
+
+      document.getElementById('modal-risk-recap').textContent =
+        `Risk Score ${currentCheckRecord.score}/100 (${currentCheckRecord.riskLabel}) — Flagged for: ${currentCheckRecord.warnings.map(w => w.title).join(', ')}.`;
+      document.getElementById('modal-target-display').textContent = currentCheckRecord.targetUrl;
+
+      document.getElementById('disclaimer-modal').classList.remove('hidden');
+      setStepper(4);
+
+      addAuditLog(
+        'DISCLAIMER_OPENED',
+        currentCheckRecord.channel,
+        currentCheckRecord.checkId,
+        currentCheckRecord.score,
+        currentCheckRecord.riskLabel,
+        currentCheckRecord.sender,
+        `Customer clicked "Still Need to Proceed". Liability & Own-Risk Disclaimer pop-up presented.`
+      );
+    }
+
+    function validateModalConsent() {
+      const reason = document.getElementById('override-reason').value;
+      const checked = document.getElementById('disclaimer-checkbox').checked;
+      document.getElementById('confirm-override-btn').disabled = !(reason && checked);
+    }
+
+    function cancelDisclaimerModal() {
+      document.getElementById('disclaimer-modal').classList.add('hidden');
+      if (currentCheckRecord) {
+        addAuditLog(
+          'DISCLAIMER_CANCELLED',
+          currentCheckRecord.channel,
+          currentCheckRecord.checkId,
+          currentCheckRecord.score,
+          currentCheckRecord.riskLabel,
+          currentCheckRecord.sender,
+          `Customer closed/cancelled the Risk Disclaimer pop-up and chose to stay safe (proceed remains blocked).`
+        );
+      }
+    }
+
+    function confirmRiskOverride() {
+      if (!currentCheckRecord) return;
+      const reason = document.getElementById('override-reason').value;
+      document.getElementById('disclaimer-modal').classList.add('hidden');
+
+      currentCheckRecord.overridden = true;
+      document.getElementById('proceed-state-pill').textContent = 'Status: OVERRIDDEN AT CUSTOMER RISK';
+      document.getElementById('override-outcome-banner').classList.remove('hidden');
+      document.getElementById('override-outcome-text').textContent =
+        `Disclaimer accepted at ${formatNow()} for "${currentCheckRecord.targetUrl}". Stated reason: "${reason}". Full liability acknowledged and recorded in Audit Log (${currentCheckRecord.checkId}).`;
+
+      addAuditLog(
+        'RISK_OVERRIDE_PROCEEDED',
+        currentCheckRecord.channel,
+        currentCheckRecord.checkId,
+        currentCheckRecord.score,
+        currentCheckRecord.riskLabel,
+        currentCheckRecord.sender,
+        `OWN-RISK OVERRIDE ACCEPTED: Customer acknowledged disclaimer & proceeded to "${currentCheckRecord.targetUrl}". Reason: "${reason}".`
+      );
+    }
+
+    function renderDashboard() {
+      const total = auditLogs.length;
+      const checks = auditLogs.filter(l => l.action === 'MESSAGE_CHECKED');
+      const waChecks = checks.filter(l => l.channel === 'WhatsApp').length;
+      const emChecks = checks.filter(l => l.channel === 'Email').length;
+      const blocked = auditLogs.filter(l => l.action === 'PROCEED_BLOCKED').length;
+      const stayedSafe = auditLogs.filter(l => l.action === 'DISCLAIMER_CANCELLED').length;
+      const overrides = auditLogs.filter(l => l.action === 'RISK_OVERRIDE_PROCEEDED').length;
+
+      document.getElementById('kpi-total-events').textContent = total;
+      document.getElementById('kpi-checks').textContent = checks.length;
+      document.getElementById('kpi-channel-split').textContent = `${waChecks} WhatsApp / ${emChecks} Email`;
+      document.getElementById('kpi-blocked').textContent = blocked;
+      document.getElementById('kpi-stayed-safe').textContent = stayedSafe;
+      document.getElementById('kpi-overrides').textContent = overrides;
+
+      // Distribution Bars
+      const categories = [
+        { key: 'MESSAGE_CHECKED', label: 'Messages Checked', color: 'var(--primary)' },
+        { key: 'PROCEED_BLOCKED', label: 'Proceeds Auto-Locked', color: 'var(--error)' },
+        { key: 'DISCLAIMER_OPENED', label: 'Disclaimer Pop-ups Opened', color: 'var(--warning)' },
+        { key: 'DISCLAIMER_CANCELLED', label: 'Cancelled (Stayed Safe)', color: 'var(--success)' },
+        { key: 'RISK_OVERRIDE_PROCEEDED', label: 'Own-Risk Overrides Accepted', color: 'var(--warning)' }
+      ];
+      const barContainer = document.getElementById('action-distribution-bars');
+      barContainer.innerHTML = categories.map(cat => {
+        const count = auditLogs.filter(l => l.action === cat.key).length;
+        const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+        return `
+          <div class="space-y-1">
+            <div class="flex justify-between">
+              <span>${cat.label}</span>
+              <span class="font-mono font-semibold">${count} (${pct}%)</span>
+            </div>
+            <div class="w-full h-2 rounded-full bg-[var(--sidebar)] overflow-hidden">
+              <div class="h-full rounded-full" style="width: ${Math.max(pct, count > 0 ? 4 : 0)}%; background-color: ${cat.color};"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Channel & Outcome Summary
+      const safeVerifyCount = auditLogs.filter(l => l.action === 'SAFE_STEP_VERIFIED').length;
+      document.getElementById('channel-summary-box').innerHTML = `
+        <div class="p-3 rounded-lg bg-[var(--sidebar)] border border-[var(--card-border)] flex items-center justify-between">
+          <span>💬 WhatsApp Events Logged</span>
+          <span class="font-mono font-semibold">${auditLogs.filter(l => l.channel === 'WhatsApp').length}</span>
+        </div>
+        <div class="p-3 rounded-lg bg-[var(--sidebar)] border border-[var(--card-border)] flex items-center justify-between">
+          <span>✉️ Email Events Logged</span>
+          <span class="font-mono font-semibold">${auditLogs.filter(l => l.channel === 'Email').length}</span>
+        </div>
+        <div class="p-3 rounded-lg bg-[var(--sidebar)] border border-[var(--card-border)] flex items-center justify-between">
+          <span>🛡️ Safe Checklist Verifications Completed</span>
+          <span class="font-mono font-semibold text-[var(--success)]">${safeVerifyCount}</span>
+        </div>
+      `;
+
+      // Filter Table
+      const actionFilter = document.getElementById('log-filter-action').value;
+      const channelFilter = document.getElementById('log-filter-channel').value;
+      const query = document.getElementById('log-search').value.trim().toLowerCase();
+
+      const filtered = auditLogs.filter(l => {
+        if (actionFilter !== 'ALL' && l.action !== actionFilter) return false;
+        if (channelFilter !== 'ALL' && l.channel !== channelFilter) return false;
+        if (query && !(`${l.logId} ${l.checkId} ${l.sender} ${l.details} ${l.action}`).toLowerCase().includes(query)) return false;
+        return true;
+      });
+
+      const tbody = document.getElementById('audit-log-tbody');
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-[var(--muted-foreground)]">No audit log entries match the current filter.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(l => {
+        let badgeStyle = 'status-primary-bg text-[var(--primary)] status-primary-border';
+        if (l.action === 'PROCEED_BLOCKED') badgeStyle = 'status-error-bg text-[var(--error)] status-error-border';
+        else if (l.action === 'DISCLAIMER_OPENED' || l.action === 'RISK_OVERRIDE_PROCEEDED') badgeStyle = 'status-warning-bg text-[var(--warning)] status-warning-border';
+        else if (l.action === 'DISCLAIMER_CANCELLED' || l.action === 'SAFE_STEP_VERIFIED') badgeStyle = 'status-success-bg text-[var(--success)] status-success-border';
+
+        return `
+          <tr class="hover:bg-[var(--sidebar)] transition-colors">
+            <td class="py-2.5 px-3 font-mono whitespace-nowrap text-[var(--muted-foreground)]">${escapeHtml(l.timestamp)}</td>
+            <td class="py-2.5 px-3 font-mono whitespace-nowrap">
+              <div class="font-semibold">${escapeHtml(l.logId)}</div>
+              <div class="text-[var(--muted-foreground)]">${escapeHtml(l.checkId)}</div>
+            </td>
+            <td class="py-2.5 px-3 whitespace-nowrap">${escapeHtml(l.channel)}</td>
+            <td class="py-2.5 px-3 whitespace-nowrap">
+              <span class="px-2 py-0.5 rounded border font-mono text-xs ${badgeStyle}">${escapeHtml(l.action)}</span>
+            </td>
+            <td class="py-2.5 px-3 font-mono whitespace-nowrap">${l.riskScore ? l.riskScore + '/100' : '—'}</td>
+            <td class="py-2.5 px-3">
+              <div class="font-medium">${escapeHtml(l.sender)}</div>
+              <div class="text-[var(--muted-foreground)]">${escapeHtml(l.details)}</div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function exportLogsCSV() {
+      addAuditLog('LOGS_EXPORTED', 'System', 'SYS', 0, 'INFO', 'IT Auditor', 'Exported full security action log table to CSV.');
+      const headers = ['LogID', 'CheckID', 'Timestamp', 'Channel', 'Action', 'RiskScore', 'RiskLabel', 'Sender', 'Details'];
+      const rows = auditLogs.map(l => [
+        l.logId, l.checkId, l.timestamp, l.channel, l.action, l.riskScore, l.riskLabel,
+        `"${String(l.sender).replace(/"/g, '""')}"`,
+        `"${String(l.details).replace(/"/g, '""')}"`
+      ].join(','));
+      const csv = [headers.join(','), ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `phishguard-audit-logs-${Date.now()}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // Initialize pill count & load first convincing example ready for demo
+    updateLogPill();
+  </script>
+</body>
+</html>
